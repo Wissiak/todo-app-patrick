@@ -10,10 +10,11 @@ const ID = {
   todoText: "#todo-text",
   todoContainer: "#todo-container",
   showOnlyActive: "#show-active",
+  textFieldWrapper: "#text-field-wrapper",
 
-  firstTodoItem: "#todo-item-1",
-  firstTodoItemTick: "#todo-item-1-tick",
-  firstTodoItemDelete: "#todo-item-1-tick",
+  firstTodoItem: "#todo-item-0",
+  firstTodoItemTick: "#todo-item-0-tick",
+  firstTodoItemDelete: "#todo-item-0-delete",
   secondTodoItem: "#todo-item-1"
 };
 
@@ -28,27 +29,33 @@ module.exports = {
     browser
       .init()
       .url(SERVER_URL)
-      .waitForElementVisible(ID.addTodo)
+      .waitForElementVisible(ID.addTodo, 5000)
       .setValue(ID.todoText, TEST_TEXT)
       .click(ID.addTodo)
 
-      .waitForElementVisible(ID.todoContainer + " > " + ID.firstTodoItem)
+      .waitForElementVisible(ID.firstTodoItem, 5000)
       .expect.element(ID.firstTodoItem)
-      .text.to.equal(TEST_TEXT)
-      .expect.element(ID.todoText)
-      .text.to.equal("");
+      .text.to.equal(TEST_TEXT);
+    browser.expect.element(ID.todoText).text.to.equal("");
   },
   "Test adding a todo item with too long text": browser => {
     browser
       .setValue(ID.todoText, TEST_TEXT_TOO_LONG)
       .click(ID.addTodo)
 
-      .expect.element(ID.todoText)
+      .expect.element(ID.textFieldWrapper)
       .text.to.equal("Max 50 Characters");
+    browser.setValue(ID.todoText, [
+      browser.Keys.CONTROL,
+      "a",
+      browser.Keys.DELETE
+    ]);
   },
   "Test ticking todo item": browser => {
     browser
       .click(ID.firstTodoItemTick)
+      .moveToElement(ID.showOnlyActive, undefined, undefined)
+      .mouseButtonClick("left")
       .assert.cssClassPresent(ID.firstTodoItem, "todoFinished");
   },
   "Test filter todo items": browser => {
@@ -56,23 +63,20 @@ module.exports = {
       //Create new item first and then filter - first item is already finished
       .setValue(ID.todoText, TEST_TEXT_2)
       .click(ID.addTodo)
-      .waitForElementVisible(ID.todoContainer + " > " + ID.secondTodoItem)
+      .waitForElementVisible(ID.secondTodoItem, 5000)
 
       //Filter for active items
-      .expect.element(ID.secondTodoItem)
-      .to.be.visible //Second item should be visible
-      .click(ID.showOnlyActive)
-      .expect.element(ID.secondTodoItem)
-      .not.to.be.visible //Second item should not be visible
+      .assert.elementCount("#todo-container > div", 2)
+      .moveToElement(ID.showOnlyActive, undefined, undefined)
+      .mouseButtonClick("left")
+      .assert.elementCount("#todo-container > div", 1)
       .expect.element(ID.firstTodoItem)
-      .text.to.equal(TEST_TEXT); //The first item should still be available with the correct text
+      .text.to.equal(TEST_TEXT_2); //The first item should still be available with the correct text
   },
   "Test delete todo item": browser => {
     browser
       .click(ID.firstTodoItemDelete)
-
-      .expect.element(ID.secondTodoItem)
-      .not.to.be.visible //Only one item should be left
+      .assert.containsText("#todo-container", "No items found")
       .end();
   }
 };
