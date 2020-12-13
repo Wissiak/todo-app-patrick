@@ -44,7 +44,7 @@ module.exports = {
       .click(ID.addTodo)
 
       .expect.element(ID.todoText)
-      .text.to.equal("Only 50 characters are allowed");
+      .text.to.equal("Max 50 Characters");
   },
   "Test ticking todo item": browser => {
     browser

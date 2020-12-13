@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-row class="text-center">
-      <v-col class="mb-4">
+    <v-row class="text-center" justify="center">
+      <v-col class="mb-4" cols="12">
         <h1 class="display-2 font-weight-bold mb-3">
           Patrick's Todo App
         </h1>
@@ -14,121 +14,86 @@
         </p>
       </v-col>
 
-      <v-col class="mb-5" cols="12">
+      <v-col class="mb-5" cols="6">
         <h2 class="headline font-weight-bold mb-3">
-          What's next?
+          Your todo items
         </h2>
+        <v-switch id="show-active" v-model="filter" label="Show only active" />
 
-        <v-row justify="center">
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ next.text }}
-          </a>
+        <v-row
+          class="text-left"
+          justify="center"
+          v-for="(todoItem, i) in todoItemsFiltered"
+          :key="i"
+        >
+          <v-col md="auto">
+            {{ todoItem.text }}
+          </v-col>
+          <v-col class="text-center" md="auto">
+            <v-btn icon>
+              <v-icon>done</v-icon>
+            </v-btn>
+            <v-btn icon>
+              <v-icon>delete</v-icon>
+            </v-btn>
+          </v-col>
         </v-row>
-      </v-col>
-
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          Important Links
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ link.text }}
-          </a>
+        <v-row v-if="todoItemsFiltered.length === 0" justify="center">
+          <p>No items found</p>
         </v-row>
-      </v-col>
 
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          Ecosystem
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ eco.text }}
-          </a>
-        </v-row>
+        <v-form ref="form" v-model="valid">
+          <v-row>
+            <v-col>
+              <v-text-field id="todo-text" v-model="text" :rules="rules" />
+            </v-col>
+            <v-col cols="2">
+              <v-btn icon @click="addTodoItem" class="mt-3">
+                <v-icon x-large color="primary">add_circle</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-form>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
+const LOCAL_STORAGE_KEY = "TOOD_ITEMS";
+
 export default {
   name: "HelloWorld",
-  data: () => ({
-    ecosystem: [
-      {
-        text: "vuetify-loader",
-        href: "https://github.com/vuetifyjs/vuetify-loader"
-      },
-      {
-        text: "github",
-        href: "https://github.com/vuetifyjs/vuetify"
-      },
-      {
-        text: "awesome-vuetify",
-        href: "https://github.com/vuetifyjs/awesome-vuetify"
-      }
-    ],
-    importantLinks: [
-      {
-        text: "Documentation",
-        href: "https://vuetifyjs.com"
-      },
-      {
-        text: "Chat",
-        href: "https://community.vuetifyjs.com"
-      },
-      {
-        text: "Made with Vuetify",
-        href: "https://madewithvuejs.com/vuetify"
-      },
-      {
-        text: "Twitter",
-        href: "https://twitter.com/vuetifyjs"
-      },
-      {
-        text: "Articles",
-        href: "https://medium.com/vuetify"
-      }
-    ],
-    whatsNext: [
-      {
-        text: "Explore components",
-        href: "https://vuetifyjs.com/components/api-explorer"
-      },
-      {
-        text: "Select a layout",
-        href: "https://vuetifyjs.com/getting-started/pre-made-layouts"
-      },
-      {
-        text: "Frequently Asked Questions",
-        href: "https://vuetifyjs.com/getting-started/frequently-asked-questions"
-      }
-    ]
-  }),
+  data() {
+    return {
+      valid: false,
+      rules: [val => val.length <= 50 || "Max 50 Characters"],
+      filter: false,
+      text: "",
+      todoItems: JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [] //Set initial value
+    };
+  },
+  computed: {
+    todoItemsFiltered() {
+      return this.todoItems.filter(i => !this.filter || i.done);
+    }
+  },
   methods: {
     onSmileyClick() {
       window.open("https://www.linkedin.com/in/patrick-wissiak", "_blank");
+    },
+    addTodoItem() {
+      this.$refs.form.validate();
+      if (this.valid) {
+        this.todoItems.push({ text: this.text, done: false });
+        this.text = "";
+      }
+    }
+  },
+  watch: {
+    todoItems(newVal) {
+      //Safe to local storage if property has been changed
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newVal));
     }
   }
 };
