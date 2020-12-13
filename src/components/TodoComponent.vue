@@ -33,42 +33,44 @@
           />
         </v-row>
 
-        <div id="todo-container">
-          <v-row
-            v-for="(todoItem, i) in todoItemsFiltered"
-            :key="i"
-            class="text-left"
-            justify="center"
-          >
-            <v-col
-              md="auto"
-              :id="`todo-item-${i}`"
-              :class="todoItem.done ? 'todoFinished' : ''"
-            >
-              {{ todoItem.text }}
-            </v-col>
-            <v-col class="text-center" md="auto">
-              <v-btn
-                :id="`todo-item-${i}-tick`"
-                icon
-                @click="toggleItem(todoItem)"
-                :color="!todoItem.done ? 'success' : ''"
+        <v-scroll-x-transition group tag="v-list" id="todo-container">
+          <template v-for="(todoItem, i) in todoItemsFiltered">
+            <v-divider v-if="i !== 0" :key="`${i}-divider`" />
+            <v-row class="text-left" justify="center" :key="i" align="center">
+              <v-col
+                md="auto"
+                :id="`todo-item-${i}`"
+                :class="todoItem.done ? 'todoFinished' : ''"
               >
-                <v-icon>{{ !todoItem.done ? "done" : "refresh" }}</v-icon>
-              </v-btn>
-              <v-btn
-                :id="`todo-item-${i}-delete`"
-                icon
-                @click="deleteItem(todoItem)"
-              >
-                <v-icon>delete</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row v-if="todoItemsFiltered.length === 0" justify="center">
-            <p>No items found</p>
-          </v-row>
-        </div>
+                {{ todoItem.text }}
+              </v-col>
+              <v-col class="text-center" md="auto">
+                <v-btn
+                  :id="`todo-item-${i}-tick`"
+                  icon
+                  @click="toggleItem(todoItem)"
+                  :color="!todoItem.done ? 'success' : ''"
+                >
+                  <v-icon>{{ !todoItem.done ? "done" : "refresh" }}</v-icon>
+                </v-btn>
+                <v-btn
+                  :id="`todo-item-${i}-delete`"
+                  icon
+                  @click="deleteItem(todoItem)"
+                >
+                  <v-icon>delete</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </template>
+        </v-scroll-x-transition>
+        <v-row
+          v-if="todoItemsFiltered.length === 0"
+          id="no-items"
+          justify="center"
+        >
+          <p>No items found</p>
+        </v-row>
 
         <v-form ref="form" v-model="valid">
           <v-row>

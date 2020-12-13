@@ -11,6 +11,7 @@ const ID = {
   todoContainer: "#todo-container",
   showOnlyActive: "#show-active",
   textFieldWrapper: "#text-field-wrapper",
+  noItems: "#no-items",
 
   firstTodoItem: "#todo-item-0",
   firstTodoItemTick: "#todo-item-0-tick",
@@ -74,9 +75,8 @@ module.exports = {
       .text.to.equal(TEST_TEXT_2); //The first item should still be available with the correct text
   },
   "Test delete todo item": browser => {
-    browser
-      .click(ID.firstTodoItemDelete)
-      .assert.containsText("#todo-container", "No items found")
-      .end();
+    browser.click(ID.firstTodoItemDelete).expect.element(ID.noItems).to.be
+      .present;
+    browser.end();
   }
 };
