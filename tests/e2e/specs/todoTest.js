@@ -17,6 +17,7 @@ const ID = {
   secondTodoItem: "#todo-item-1"
 };
 
+const SERVER_URL = process.env.VUE_DEV_SERVER_URL;
 const TEST_TEXT = "Test Todo";
 const TEST_TEXT_2 = "ZZZ";
 const TEST_TEXT_TOO_LONG =
@@ -26,6 +27,7 @@ module.exports = {
   "Test adding a todo item - success": browser => {
     browser
       .init()
+      .url(SERVER_URL)
       .waitForElementVisible(ID.addTodo)
       .setValue(ID.todoText, TEST_TEXT)
       .click(ID.addTodo)
