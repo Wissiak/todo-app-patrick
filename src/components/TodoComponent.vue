@@ -93,7 +93,7 @@
 const LOCAL_STORAGE_KEY = "TOOD_ITEMS";
 
 export default {
-  name: "HelloWorld",
+  name: "TodoComponent",
   data() {
     return {
       valid: false,
